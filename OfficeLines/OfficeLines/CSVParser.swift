@@ -1,8 +1,25 @@
 import Foundation
 
 class CSVParser {
+    static func loadOfficeLinesFromBundle() -> [OfficeLine] {
+        guard let url = Bundle.main.url(forResource: "the-office-lines", withExtension: "csv") else {
+            print("Error: Could not find the-office-lines.csv in app bundle")
+            return []
+        }
+        
+        do {
+            let csvContent = try String(contentsOf: url)
+            return parseOfficeLines(from: csvContent)
+        } catch {
+            print("Error reading CSV file from bundle: \(error)")
+            return []
+        }
+    }
+    
     static func parseOfficeLines(from csvContent: String) -> [OfficeLine] {
-        let lines = csvContent.components(separatedBy: .newlines)
+        // Remove BOM if present
+        let cleanContent = csvContent.hasPrefix("\u{FEFF}") ? String(csvContent.dropFirst()) : csvContent
+        let lines = cleanContent.components(separatedBy: .newlines)
         var officeLines: [OfficeLine] = []
         
         // Skip header row
@@ -28,6 +45,14 @@ class CSVParser {
               let episode = Int(columns[2]),
               let scene = Int(columns[3]) else {
             return nil
+        }
+        
+        // Skip deleted lines if there's a "deleted" column
+        if columns.count >= 7 {
+            let deleted = columns[6].trimmingCharacters(in: .whitespacesAndNewlines).uppercased()
+            if deleted == "TRUE" {
+                return nil
+            }
         }
         
         let lineText = columns[4].trimmingCharacters(in: .whitespacesAndNewlines)

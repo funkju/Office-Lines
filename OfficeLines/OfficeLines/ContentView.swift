@@ -1,12 +1,10 @@
 import SwiftUI
 import AppKit
-internal import UniformTypeIdentifiers
 
 struct ContentView: View {
     @State private var searchText = ""
     @State private var officeLines: [OfficeLine] = []
     @State private var filteredLines: [OfficeLine] = []
-    @State private var showingImporter = false
     @State private var isDataLoaded = false
     @State private var selectedLine: OfficeLine?
     @State private var copyFeedback = ""
@@ -20,11 +18,6 @@ struct ContentView: View {
                     .fontWeight(.bold)
                 
                 Spacer()
-                
-                Button("Load CSV File") {
-                    showingImporter = true
-                }
-                .buttonStyle(.borderedProminent)
             }
             .padding(.horizontal)
             
@@ -100,49 +93,25 @@ struct ContentView: View {
                 }
                 .padding(.horizontal)
             } else {
-                // Welcome message
+                // Loading message
                 VStack(spacing: 16) {
                     Image(systemName: "tv.fill")
                         .font(.system(size: 60))
                         .foregroundColor(.blue)
                     
-                    Text("Welcome to The Office Lines Search")
+                    Text("Loading The Office Lines...")
                         .font(.title2)
                         .fontWeight(.semibold)
                     
-                    Text("Load a CSV file containing Office lines to get started")
-                        .foregroundColor(.secondary)
-                        .multilineTextAlignment(.center)
-                    
-                    Button("Load CSV File") {
-                        showingImporter = true
-                    }
-                    .buttonStyle(.borderedProminent)
-                    .controlSize(.large)
-                    
-                    // Show sample data for demo
-                    VStack(alignment: .leading, spacing: 8) {
-                        Text("Or try with sample data:")
-                            .font(.caption)
-                            .foregroundColor(.secondary)
-                        
-                        Button("Load Sample Data") {
-                            loadSampleData()
-                        }
-                        .buttonStyle(.bordered)
-                        .controlSize(.small)
-                    }
+                    ProgressView()
+                        .progressViewStyle(CircularProgressViewStyle())
                 }
                 .padding(40)
             }
         }
         .frame(minWidth: 600, minHeight: 400)
-        .fileImporter(
-            isPresented: $showingImporter,
-            allowedContentTypes: [.commaSeparatedText, .plainText],
-            allowsMultipleSelection: false
-        ) { result in
-            handleFileImport(result)
+        .onAppear {
+            loadOfficeLines()
         }
     }
     
@@ -158,33 +127,16 @@ struct ContentView: View {
         }
     }
     
-    private func handleFileImport(_ result: Result<[URL], Error>) {
-        switch result {
-        case .success(let urls):
-            guard let url = urls.first else { return }
+    private func loadOfficeLines() {
+        DispatchQueue.global(qos: .userInitiated).async {
+            let parsedLines = CSVParser.loadOfficeLinesFromBundle()
             
-            do {
-                let csvContent = try String(contentsOf: url)
-                let parsedLines = CSVParser.parseOfficeLines(from: csvContent)
-                
-                DispatchQueue.main.async {
-                    self.officeLines = parsedLines
-                    self.isDataLoaded = !parsedLines.isEmpty
-                    self.filterLines(with: self.searchText)
-                }
-            } catch {
-                print("Error reading CSV file: \(error)")
+            DispatchQueue.main.async {
+                self.officeLines = parsedLines
+                self.isDataLoaded = !parsedLines.isEmpty
+                self.filterLines(with: self.searchText)
             }
-            
-        case .failure(let error):
-            print("Error importing file: \(error)")
         }
-    }
-    
-    private func loadSampleData() {
-        officeLines = OfficeLine.sampleData
-        isDataLoaded = true
-        filterLines(with: searchText)
     }
     
     private func copyToClipboard(_ text: String) {
