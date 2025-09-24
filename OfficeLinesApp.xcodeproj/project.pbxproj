@@ -15,6 +15,7 @@
 		1D1234567890ABD7 /* CSVParser.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1D1234567890ABD8 /* CSVParser.swift */; };
 		1D1234567890ABE0 /* Search in Frameworks */ = {isa = PBXBuildFile; productRef = 1D1234567890ABDF /* Search */; };
 		1D1234567890ABE2 /* AlgoliaSearchManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1D1234567890ABE1 /* AlgoliaSearchManager.swift */; };
+		1D1234567890ABE4 /* Item.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1D1234567890ABE5 /* Item.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -27,6 +28,7 @@
 		1D1234567890ABD8 /* CSVParser.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CSVParser.swift; sourceTree = "<group>"; };
 		1D1234567890ABD9 /* OfficeLinesApp.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = OfficeLinesApp.entitlements; sourceTree = "<group>"; };
 		1D1234567890ABE1 /* AlgoliaSearchManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AlgoliaSearchManager.swift; sourceTree = "<group>"; };
+		1D1234567890ABE5 /* Item.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Item.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -66,6 +68,7 @@
 				1D1234567890ABD6 /* OfficeLine.swift */,
 				1D1234567890ABD8 /* CSVParser.swift */,
 				1D1234567890ABE1 /* AlgoliaSearchManager.swift */,
+				1D1234567890ABE5 /* Item.swift */,
 				1D1234567890ABD2 /* Assets.xcassets */,
 				1D1234567890ABD5 /* Preview Content */,
 			);
@@ -158,6 +161,7 @@
 				1D1234567890ABD5 /* OfficeLine.swift in Sources */,
 				1D1234567890ABD7 /* CSVParser.swift in Sources */,
 				1D1234567890ABE2 /* AlgoliaSearchManager.swift in Sources */,
+				1D1234567890ABE4 /* Item.swift in Sources */,
 				1D1234567890ABCD /* OfficeLinesApp.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
