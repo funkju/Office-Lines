@@ -27,10 +27,21 @@
 ## Advanced Features
 
 ### Search Tips
-- **Wildcard search**: Type partial words to find matches
-- **Speaker search**: Search by character names (e.g., "Michael", "Dwight")
+- **Advanced synonym search**: Search terms are expanded with synonyms (e.g., "understand" matches "get", "comprehend", "grasp")
+- **Flexible word order**: "understand secret" and "secret understand" both match the same lines
+- **Wildcard search**: Use `*` for partial matches (e.g., "secret*" matches "secrets", "secretive")
+- **Phrase search**: Use quotes for exact phrases (e.g., "it's a secret")
+- **Speaker search**: Search by character names (e.g., "Michael", "Dwight")  
 - **Case insensitive**: Search works regardless of capitalization
-- **Phrase search**: Find exact phrases or partial quotes
+- **Contraction support**: "wouldn't" matches "would not", "it's" matches "it is"
+- **Smart matching**: All search words must be present but can appear in any order
+
+### Advanced Search Examples
+- `understand secret` → matches "You wouldn't understand. It's a secret"
+- `secret understand` → matches the same line (flexible word order)
+- `get confidential` → matches lines with "understand" and "secret" (via synonyms)
+- `"it's a secret"` → exact phrase matching
+- `secret*` → wildcard matching for words starting with "secret"
 
 ### Database Details
 The app includes a complete database of Office lines with:

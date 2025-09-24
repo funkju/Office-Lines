@@ -24,10 +24,10 @@ struct ContentView: View {
             if isDataLoaded {
                 // Search box
                 VStack(alignment: .leading, spacing: 8) {
-                    Text("Search for Office lines:")
+                    Text("Advanced Search for Office lines:")
                         .font(.headline)
                     
-                    TextField("Type to search lines...", text: $searchText)
+                    TextField("Search with synonyms, wildcards, flexible word order...", text: $searchText)
                         .textFieldStyle(.roundedBorder)
                         .font(.system(size: 14))
                         .onChange(of: searchText) { _, newValue in
@@ -119,11 +119,8 @@ struct ContentView: View {
         if searchText.isEmpty {
             filteredLines = []
         } else {
-            let lowercaseSearch = searchText.lowercased()
-            filteredLines = officeLines.filter { line in
-                line.lineText.lowercased().contains(lowercaseSearch) ||
-                line.speaker.lowercased().contains(lowercaseSearch)
-            }
+            // Use the new AdvancedSearchEngine for enhanced search capabilities
+            filteredLines = AdvancedSearchEngine.search(lines: officeLines, searchText: searchText)
         }
     }
     
