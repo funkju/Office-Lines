@@ -8,110 +8,119 @@ struct ContentView: View {
     @State private var isDataLoaded = false
     @State private var selectedLine: OfficeLine?
     @State private var copyFeedback = ""
+    @State private var selectedIndex = 0
+    @FocusState private var isSearchFocused: Bool
     
     var body: some View {
-        VStack(spacing: 20) {
-            // Header
-            HStack {
-                Text("The Office Lines Search")
-                    .font(.title)
-                    .fontWeight(.bold)
-                
-                Spacer()
-            }
-            .padding(.horizontal)
-            
+        VStack(spacing: 0) {
             if isDataLoaded {
-                // Search box
-                VStack(alignment: .leading, spacing: 8) {
-                    Text("Advanced Search for Office lines:")
-                        .font(.headline)
-                    
-                    TextField("Search with synonyms, wildcards, flexible word order...", text: $searchText)
-                        .textFieldStyle(.roundedBorder)
-                        .font(.system(size: 14))
+                // Spotlight-style centered search
+                VStack(spacing: 16) {
+                    // Minimal search field
+                    TextField("Search The Office lines...", text: $searchText)
+                        .textFieldStyle(.plain)
+                        .font(.system(size: 18))
+                        .padding(.horizontal, 16)
+                        .padding(.vertical, 12)
+                        .background(Color(NSColor.controlBackgroundColor))
+                        .cornerRadius(8)
+                        .shadow(color: .black.opacity(isSearchFocused ? 0.2 : 0.1), radius: isSearchFocused ? 2 : 1, x: 0, y: 1)
+                        .overlay(
+                            RoundedRectangle(cornerRadius: 8)
+                                .stroke(Color.accentColor.opacity(isSearchFocused ? 0.3 : 0), lineWidth: 1)
+                        )
+                        .focused($isSearchFocused)
+                        .onSubmit {
+                            if !filteredLines.isEmpty && selectedIndex < filteredLines.count {
+                                let line = filteredLines[selectedIndex]
+                                copyToClipboard(line.copyText)
+                                selectedLine = line
+                                showCopyFeedback(for: line)
+                            }
+                        }
                         .onChange(of: searchText) { _, newValue in
                             filterLines(with: newValue)
+                            selectedIndex = 0
+                        }
+                        .onKeyPress(.upArrow) {
+                            if selectedIndex > 0 {
+                                selectedIndex -= 1
+                            }
+                            return .handled
+                        }
+                        .onKeyPress(.downArrow) {
+                            if selectedIndex < filteredLines.count - 1 {
+                                selectedIndex += 1
+                            }
+                            return .handled
                         }
                     
+                    // Copy feedback
                     if !copyFeedback.isEmpty {
                         Text(copyFeedback)
                             .foregroundColor(.green)
                             .font(.caption)
+                            .animation(.easeInOut(duration: 0.2), value: copyFeedback)
                     }
                 }
-                .padding(.horizontal)
+                .padding(.horizontal, 40)
+                .padding(.top, 40)
+                .padding(.bottom, searchText.isEmpty ? 0 : 20)
                 
                 // Results
                 if !filteredLines.isEmpty {
                     ScrollView {
-                        LazyVStack(alignment: .leading, spacing: 8) {
-                            ForEach(filteredLines.prefix(50)) { line in
-                                LineResultView(line: line) {
+                        LazyVStack(spacing: 2) {
+                            ForEach(Array(filteredLines.prefix(50).enumerated()), id: \.element.id) { index, line in
+                                SpotlightResultView(line: line, isSelected: index == selectedIndex) {
                                     copyToClipboard(line.copyText)
                                     selectedLine = line
                                     showCopyFeedback(for: line)
+                                    selectedIndex = index
                                 }
-                                .background(selectedLine?.id == line.id ? Color.blue.opacity(0.1) : Color.clear)
-                                .cornerRadius(4)
-                            }
-                            
-                            if filteredLines.count > 50 {
-                                Text("Showing first 50 results of \(filteredLines.count)")
-                                    .font(.caption)
-                                    .foregroundColor(.secondary)
-                                    .padding()
+                                .background(selectedLine?.id == line.id ? Color.accentColor.opacity(0.1) : 
+                                           (index == selectedIndex ? Color.accentColor.opacity(0.05) : Color.clear))
                             }
                         }
-                        .padding(.horizontal)
+                        .padding(.horizontal, 40)
                     }
                 } else if !searchText.isEmpty {
-                    Text("No lines found matching '\(searchText)'")
-                        .foregroundColor(.secondary)
-                        .padding()
-                } else {
-                    Text("Type in the search box to find Office lines")
-                        .foregroundColor(.secondary)
-                        .padding()
-                }
-                
-                Spacer()
-                
-                // Statistics
-                HStack {
-                    Text("Total lines loaded: \(officeLines.count)")
-                        .font(.caption)
-                        .foregroundColor(.secondary)
+                    VStack {
+                        Image(systemName: "magnifyingglass")
+                            .font(.system(size: 24))
+                            .foregroundColor(.secondary)
+                        Text("No results found")
+                            .font(.body)
+                            .foregroundColor(.secondary)
+                            .padding(.top, 8)
+                    }
+                    .padding(.top, 60)
                     
                     Spacer()
-                    
-                    if !searchText.isEmpty {
-                        Text("Found: \(filteredLines.count)")
-                            .font(.caption)
-                            .foregroundColor(.secondary)
-                    }
+                } else {
+                    // Empty state - show nothing, like Spotlight
+                    Spacer()
                 }
-                .padding(.horizontal)
             } else {
-                // Loading message
+                // Minimal loading state
                 VStack(spacing: 16) {
-                    Image(systemName: "tv.fill")
-                        .font(.system(size: 60))
-                        .foregroundColor(.blue)
-                    
-                    Text("Loading The Office Lines...")
-                        .font(.title2)
-                        .fontWeight(.semibold)
-                    
                     ProgressView()
                         .progressViewStyle(CircularProgressViewStyle())
+                        .scaleEffect(0.8)
+                    
+                    Text("Loading...")
+                        .font(.body)
+                        .foregroundColor(.secondary)
                 }
-                .padding(40)
+                .padding(.top, 100)
+                .frame(maxWidth: .infinity, maxHeight: .infinity)
             }
         }
-        .frame(minWidth: 600, minHeight: 400)
+        .frame(minWidth: 640, minHeight: 480)
+        .background(Color(NSColor.windowBackgroundColor))
         .onAppear {
             loadOfficeLines()
+            isSearchFocused = true
         }
     }
     
@@ -152,37 +161,51 @@ struct ContentView: View {
     }
 }
 
-struct LineResultView: View {
+struct SpotlightResultView: View {
     let line: OfficeLine
+    let isSelected: Bool
     let onTap: () -> Void
     
     var body: some View {
         Button(action: onTap) {
-            VStack(alignment: .leading, spacing: 4) {
-                HStack {
-                    Text("Season \(line.season), Episode \(line.episode)")
-                        .font(.caption)
-                        .foregroundColor(.secondary)
+            HStack(spacing: 12) {
+                // Icon
+                Image(systemName: "quote.bubble")
+                    .font(.system(size: 14))
+                    .foregroundColor(.secondary)
+                    .frame(width: 20)
+                
+                // Content
+                VStack(alignment: .leading, spacing: 2) {
+                    Text(line.lineText)
+                        .font(.system(size: 14))
+                        .lineLimit(2)
+                        .multilineTextAlignment(.leading)
+                        .foregroundColor(.primary)
                     
-                    Spacer()
-                    
-                    Text(line.speaker)
-                        .font(.caption)
-                        .fontWeight(.medium)
-                        .foregroundColor(.blue)
+                    HStack {
+                        Text(line.speaker)
+                            .font(.caption)
+                            .foregroundColor(.secondary)
+                        
+                        Text("•")
+                            .font(.caption)
+                            .foregroundColor(.secondary)
+                        
+                        Text("S\(line.season)E\(line.episode)")
+                            .font(.caption)
+                            .foregroundColor(.secondary)
+                    }
                 }
                 
-                Text(line.lineText)
-                    .font(.body)
-                    .multilineTextAlignment(.leading)
-                    .lineLimit(3)
+                Spacer()
             }
+            .padding(.horizontal, 16)
+            .padding(.vertical, 10)
+            .contentShape(Rectangle())
         }
         .buttonStyle(.plain)
-        .padding(.vertical, 8)
-        .padding(.horizontal, 12)
-        .background(Color(NSColor.controlBackgroundColor))
-        .cornerRadius(8)
+        .background(Color.clear)
         .onHover { isHovering in
             if isHovering {
                 NSCursor.pointingHand.set()
