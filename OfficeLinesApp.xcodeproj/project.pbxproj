@@ -13,6 +13,8 @@
 		1D1234567890ABD3 /* Preview Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 1D1234567890ABD4 /* Preview Assets.xcassets */; };
 		1D1234567890ABD5 /* OfficeLine.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1D1234567890ABD6 /* OfficeLine.swift */; };
 		1D1234567890ABD7 /* CSVParser.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1D1234567890ABD8 /* CSVParser.swift */; };
+		1D1234567890ABE0 /* Search in Frameworks */ = {isa = PBXBuildFile; productRef = 1D1234567890ABDF /* Search */; };
+		1D1234567890ABE2 /* AlgoliaSearchManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1D1234567890ABE1 /* AlgoliaSearchManager.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -24,6 +26,7 @@
 		1D1234567890ABD6 /* OfficeLine.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OfficeLine.swift; sourceTree = "<group>"; };
 		1D1234567890ABD8 /* CSVParser.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CSVParser.swift; sourceTree = "<group>"; };
 		1D1234567890ABD9 /* OfficeLinesApp.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = OfficeLinesApp.entitlements; sourceTree = "<group>"; };
+		1D1234567890ABE1 /* AlgoliaSearchManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AlgoliaSearchManager.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -31,6 +34,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				1D1234567890ABE0 /* Search in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -61,6 +65,7 @@
 				1D1234567890ABD0 /* ContentView.swift */,
 				1D1234567890ABD6 /* OfficeLine.swift */,
 				1D1234567890ABD8 /* CSVParser.swift */,
+				1D1234567890ABE1 /* AlgoliaSearchManager.swift */,
 				1D1234567890ABD2 /* Assets.xcassets */,
 				1D1234567890ABD5 /* Preview Content */,
 			);
@@ -89,6 +94,7 @@
 			buildRules = (
 			);
 			dependencies = (
+				1D1234567890ABDF /* Search */,
 			);
 			name = OfficeLinesApp;
 			productName = OfficeLinesApp;
@@ -125,6 +131,9 @@
 			targets = (
 				1D1234567890ABCA /* OfficeLinesApp */,
 			);
+			packageReferences = (
+				1D1234567890ABE3 /* XCRemoteSwiftPackageReference "algoliasearch-client-swift" */,
+			);
 		};
 /* End PBXProject section */
 
@@ -148,6 +157,7 @@
 				1D1234567890ABCF /* ContentView.swift in Sources */,
 				1D1234567890ABD5 /* OfficeLine.swift in Sources */,
 				1D1234567890ABD7 /* CSVParser.swift in Sources */,
+				1D1234567890ABE2 /* AlgoliaSearchManager.swift in Sources */,
 				1D1234567890ABCD /* OfficeLinesAppApp.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -345,6 +355,25 @@
 			defaultConfigurationName = Release;
 		};
 /* End XCConfigurationList section */
+
+/* Begin XCRemoteSwiftPackageReference section */
+		1D1234567890ABE3 /* XCRemoteSwiftPackageReference "algoliasearch-client-swift" */ = {
+			isa = XCRemoteSwiftPackageReference;
+			repositoryURL = "https://github.com/algolia/algoliasearch-client-swift.git";
+			requirement = {
+				kind = upToNextMajorVersion;
+				minimumVersion = 9.29.0;
+			};
+		};
+/* End XCRemoteSwiftPackageReference section */
+
+/* Begin XCSwiftPackageProductDependency section */
+		1D1234567890ABDF /* Search */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = 1D1234567890ABE3 /* XCRemoteSwiftPackageReference "algoliasearch-client-swift" */;
+			productName = Search;
+		};
+/* End XCSwiftPackageProductDependency section */
 	};
 	rootObject = 1D1234567890ABC3 /* Project object */;
 }

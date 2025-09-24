@@ -1,4 +1,5 @@
 import Foundation
+import Search
 
 struct AlgoliaConfig {
     let appID: String
@@ -22,15 +23,8 @@ struct AlgoliaConfig {
     }
 }
 
-struct AlgoliaSearchResponse: Codable {
-    let hits: [AlgoliaHit]
-    let nbHits: Int
-    let page: Int
-    let nbPages: Int
-    let hitsPerPage: Int
-    let processingTimeMS: Int
-    let query: String
-}
+// Remove the manual AlgoliaSearchResponse and AlgoliaHit structs since we'll use the library's types
+// We'll keep only the conversion functionality that we need
 
 struct AlgoliaHit: Codable {
     let id: Int
@@ -53,17 +47,24 @@ struct AlgoliaHit: Codable {
 
 class AlgoliaSearchManager: ObservableObject {
     private let config: AlgoliaConfig?
-    private let session = URLSession.shared
+    private let searchClient: SearchClient?
+    private let searchIndex: SearchIndex?
     
     init() {
         self.config = AlgoliaConfig.loadFromPlist()
-        if self.config == nil {
+        
+        if let config = config {
+            self.searchClient = SearchClient(appID: ApplicationID(rawValue: config.appID), apiKey: APIKey(rawValue: config.apiKey))
+            self.searchIndex = searchClient?.index(withName: IndexName(rawValue: config.indexName))
+        } else {
+            self.searchClient = nil
+            self.searchIndex = nil
             print("Warning: Algolia configuration not loaded. Search will fall back to local data.")
         }
     }
     
     func search(query: String, completion: @escaping (Result<[OfficeLine], Error>) -> Void) {
-        guard let config = config else {
+        guard let searchIndex = searchIndex else {
             // Fallback to sample data if no config
             let sampleResults = OfficeLine.sampleData.filter { line in
                 line.lineText.lowercased().contains(query.lowercased()) ||
@@ -78,68 +79,37 @@ class AlgoliaSearchManager: ObservableObject {
             return
         }
         
-        let urlString = "https://\(config.appID)-dsn.algolia.net/1/indexes/\(config.indexName)/query"
-        guard let url = URL(string: urlString) else {
-            completion(.failure(AlgoliaError.invalidURL))
-            return
-        }
+        let searchQuery = Query(query)
+        searchQuery.hitsPerPage = 50
         
-        var request = URLRequest(url: url)
-        request.httpMethod = "POST"
-        request.setValue("application/json", forHTTPHeaderField: "Content-Type")
-        request.setValue(config.appID, forHTTPHeaderField: "X-Algolia-Application-Id")
-        request.setValue(config.apiKey, forHTTPHeaderField: "X-Algolia-API-Key")
-        
-        let searchParams = [
-            "query": query,
-            "hitsPerPage": 50
-        ] as [String: Any]
-        
-        do {
-            request.httpBody = try JSONSerialization.data(withJSONObject: searchParams)
-        } catch {
-            completion(.failure(error))
-            return
-        }
-        
-        session.dataTask(with: request) { data, response, error in
-            if let error = error {
-                completion(.failure(error))
-                return
-            }
-            
-            guard let data = data else {
-                completion(.failure(AlgoliaError.noData))
-                return
-            }
-            
-            do {
-                let searchResponse = try JSONDecoder().decode(AlgoliaSearchResponse.self, from: data)
-                let officeLines = searchResponse.hits.map { $0.toOfficeLine() }
-                completion(.success(officeLines))
-            } catch {
-                print("Algolia response decode error: \(error)")
-                // Log the raw response for debugging
-                if let responseString = String(data: data, encoding: .utf8) {
-                    print("Raw Algolia response: \(responseString)")
+        searchIndex.search(query: searchQuery) { result in
+            switch result {
+            case .success(let searchResponse):
+                do {
+                    // Convert Algolia hits to our custom format
+                    let hits = try searchResponse.hits.map { hit -> AlgoliaHit in
+                        let hitData = try JSONSerialization.data(withJSONObject: hit.object)
+                        return try JSONDecoder().decode(AlgoliaHit.self, from: hitData)
+                    }
+                    let officeLines = hits.map { $0.toOfficeLine() }
+                    completion(.success(officeLines))
+                } catch {
+                    print("Algolia response decode error: \(error)")
+                    completion(.failure(error))
                 }
+            case .failure(let error):
+                print("Algolia search error: \(error)")
                 completion(.failure(error))
             }
-        }.resume()
+        }
     }
 }
 
 enum AlgoliaError: Error, LocalizedError {
-    case invalidURL
-    case noData
     case configurationMissing
     
     var errorDescription: String? {
         switch self {
-        case .invalidURL:
-            return "Invalid Algolia URL"
-        case .noData:
-            return "No data received from Algolia"
         case .configurationMissing:
             return "Algolia configuration missing"
         }
