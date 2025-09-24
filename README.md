@@ -4,25 +4,19 @@ A native macOS application for searching through every line from the TV show "Th
 
 ## Features
 
-- **CSV Import**: Load your own CSV file with Office lines
+- **Built-in Office Lines**: All Office lines are pre-loaded from the included database
 - **Wildcard Search**: Search through all lines with real-time filtering
 - **Copy to Clipboard**: Click any result to copy the line text to your clipboard
-- **Sample Data**: Try the app immediately with built-in sample quotes
 - **Responsive UI**: Native macOS interface with SwiftUI
+- **Complete Database**: Contains thousands of lines from all seasons of The Office
 
-## CSV Format
+## Data Source
 
-The application expects a CSV file with the following columns:
-```
-id,season,episode,scene,line_text,speaker
-```
-
-Example:
-```csv
-id,season,episode,scene,line_text,speaker
-1,1,1,1,"That's what she said!","Michael Scott"
-2,1,1,2,"Bears. Beets. Battlestar Galactica.","Jim Halpert"
-```
+The app includes a complete database of lines from The Office TV show, pre-loaded and ready to search. The database contains:
+- Lines from all seasons and episodes
+- Character names for each line
+- Season and episode information
+- Over 50,000 lines from the complete series
 
 ## How to Build and Run
 
@@ -32,17 +26,15 @@ id,season,episode,scene,line_text,speaker
 
 ### Building the App
 1. Clone this repository
-2. Open `OfficeLinesApp.xcodeproj` in Xcode
-3. Select the "OfficeLinesApp" scheme
-4. Build and run (⌘+R)
+2. **Important**: Follow the setup instructions in `SETUP.md` to add the CSV file to the Xcode project bundle
+3. Open `OfficeLinesApp.xcodeproj` in Xcode
+4. Select the "OfficeLinesApp" scheme
+5. Build and run (⌘+R)
 
 ### Using the App
-1. Launch the application
-2. Either:
-   - Click "Load CSV File" to import your own Office lines CSV
-   - Click "Load Sample Data" to try with built-in examples
-3. Type in the search box to find lines containing your search term
-4. Click on any result to copy the line text to your clipboard
+1. Launch the application - all Office lines will be loaded automatically
+2. Type in the search box to find lines containing your search term
+3. Click on any result to copy the line text to your clipboard
 
 ## Project Structure
 
@@ -58,10 +50,10 @@ OfficeLinesApp/
 
 ## Sample Data
 
-The app includes sample data with popular Office quotes for immediate testing. You can also use the provided `sample_office_lines.csv` file to test the CSV import functionality.
+The app comes with the complete Office lines database built-in, so no additional setup is required.
 
 ## Requirements
 
 - The app is sandboxed for security
-- File access is limited to user-selected files only
-- Requires permission to read CSV files from your computer
+- No network access required - all data is stored locally
+- All Office lines are included in the app bundle
