@@ -26,9 +26,10 @@ The app includes a complete database of lines from The Office TV show, pre-loade
 
 ### Building the App
 1. Clone this repository
-2. Open `OfficeLinesApp.xcodeproj` in Xcode
-3. Select the "OfficeLinesApp" scheme
-4. Build and run (⌘+R)
+2. **Important**: Follow the setup instructions in `SETUP.md` to add the CSV file to the Xcode project bundle
+3. Open `OfficeLinesApp.xcodeproj` in Xcode
+4. Select the "OfficeLinesApp" scheme
+5. Build and run (⌘+R)
 
 ### Using the App
 1. Launch the application - all Office lines will be loaded automatically

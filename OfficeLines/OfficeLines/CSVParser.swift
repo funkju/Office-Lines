@@ -2,18 +2,42 @@ import Foundation
 
 class CSVParser {
     static func loadOfficeLinesFromBundle() -> [OfficeLine] {
-        guard let url = Bundle.main.url(forResource: "the-office-lines", withExtension: "csv") else {
-            print("Error: Could not find the-office-lines.csv in app bundle")
-            return []
+        // Try to load from bundle first
+        if let bundleUrl = Bundle.main.url(forResource: "the-office-lines", withExtension: "csv") {
+            do {
+                let csvContent = try String(contentsOf: bundleUrl)
+                return parseOfficeLines(from: csvContent)
+            } catch {
+                print("Error reading CSV file from bundle: \(error)")
+            }
         }
         
-        do {
-            let csvContent = try String(contentsOf: url)
-            return parseOfficeLines(from: csvContent)
-        } catch {
-            print("Error reading CSV file from bundle: \(error)")
-            return []
+        // Fallback: try to load from expected locations
+        let possiblePaths = [
+            // Relative to bundle
+            Bundle.main.bundlePath + "/the-office-lines.csv",
+            // Project root (for development)
+            Bundle.main.bundlePath + "/../../../the-office-lines.csv"
+        ]
+        
+        for path in possiblePaths {
+            if let csvContent = try? String(contentsOfFile: path) {
+                print("Loading CSV from fallback path: \(path)")
+                return parseOfficeLines(from: csvContent)
+            }
         }
+        
+        print("Error: Could not find the-office-lines.csv in any expected location")
+        print("Bundle path: \(Bundle.main.bundlePath)")
+        
+        // Return sample data as ultimate fallback
+        return [
+            OfficeLine(id: 1, season: 1, episode: 1, scene: 1, lineText: "That's what she said!", speaker: "Michael Scott"),
+            OfficeLine(id: 2, season: 1, episode: 1, scene: 2, lineText: "Bears. Beets. Battlestar Galactica.", speaker: "Jim Halpert"),
+            OfficeLine(id: 3, season: 1, episode: 2, scene: 1, lineText: "I DECLARE BANKRUPTCY!", speaker: "Michael Scott"),
+            OfficeLine(id: 4, season: 2, episode: 1, scene: 1, lineText: "Dwight, you ignorant slut!", speaker: "Michael Scott"),
+            OfficeLine(id: 5, season: 2, episode: 3, scene: 2, lineText: "Identity theft is not a joke, Jim!", speaker: "Dwight Schrute")
+        ]
     }
     
     static func parseOfficeLines(from csvContent: String) -> [OfficeLine] {
