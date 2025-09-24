@@ -9,10 +9,12 @@ struct AlgoliaConfig {
         guard let url = Bundle.main.url(forResource: "AlgoliaConfig", withExtension: "plist"),
               let data = try? Data(contentsOf: url),
               let plist = try? PropertyListSerialization.propertyList(from: data, format: nil) as? [String: String],
-              let appID = plist["app-id"],
-              let apiKey = plist["api-key"],
-              let indexName = plist["index-name"] else {
-            print("Error: Could not load Algolia configuration from plist")
+              let appID = plist["app-id"]?.trimmingCharacters(in: .whitespacesAndNewlines),
+              let apiKey = plist["api-key"]?.trimmingCharacters(in: .whitespacesAndNewlines),
+              let indexName = plist["index-name"]?.trimmingCharacters(in: .whitespacesAndNewlines),
+              !appID.isEmpty && !apiKey.isEmpty && !indexName.isEmpty,
+              !appID.hasPrefix("YOUR_") && !apiKey.hasPrefix("YOUR_") else {
+            print("Error: Could not load valid Algolia configuration from plist")
             return nil
         }
         
