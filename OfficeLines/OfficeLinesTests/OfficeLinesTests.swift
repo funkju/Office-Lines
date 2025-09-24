@@ -32,5 +32,39 @@ struct OfficeLinesTests {
         let lines = CSVParser.loadOfficeLinesFromBundle()
         #expect(lines.count > 0, "Should load lines from bundle")
     }
+    
+    @Test func testAlgoliaConfigLoading() async throws {
+        // Test that the config can be loaded (will be nil in test environment without proper plist)
+        let config = AlgoliaConfig.loadFromPlist()
+        // In test environment, we expect this to be nil since we don't have valid config
+        // but we should not crash
+        #expect(config == nil || (config?.appID.count ?? 0) > 0, "Config should be nil or valid")
+    }
+    
+    @Test func testAlgoliaSearchManagerInitialization() async throws {
+        let manager = AlgoliaSearchManager()
+        // Should initialize without crashing
+        #expect(manager != nil, "AlgoliaSearchManager should initialize")
+    }
+    
+    @Test func testAlgoliaHitConversion() async throws {
+        let hit = AlgoliaHit(
+            id: 1,
+            season: 2,
+            episode: 3,
+            scene: 4,
+            lineText: "Test line",
+            speaker: "Test Speaker",
+            objectID: "test_123"
+        )
+        
+        let officeLine = hit.toOfficeLine()
+        #expect(officeLine.id == 1)
+        #expect(officeLine.season == 2)
+        #expect(officeLine.episode == 3)
+        #expect(officeLine.scene == 4)
+        #expect(officeLine.lineText == "Test line")
+        #expect(officeLine.speaker == "Test Speaker")
+    }
 
 }
