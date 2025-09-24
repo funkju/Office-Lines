@@ -9,7 +9,9 @@ struct ContentView: View {
     @State private var selectedLine: OfficeLine?
     @State private var copyFeedback = ""
     @State private var selectedIndex = 0
+    @State private var isSearching = false
     @FocusState private var isSearchFocused: Bool
+    @StateObject private var algoliaManager = AlgoliaSearchManager()
     
     var body: some View {
         VStack(spacing: 0) {
@@ -39,7 +41,7 @@ struct ContentView: View {
                             }
                         }
                         .onChange(of: searchText) { _, newValue in
-                            filterLines(with: newValue)
+                            performAlgoliaSearch(query: newValue)
                             selectedIndex = 0
                         }
                         .onKeyPress(.upArrow) {
@@ -108,7 +110,7 @@ struct ContentView: View {
                         .progressViewStyle(CircularProgressViewStyle())
                         .scaleEffect(0.8)
                     
-                    Text("Loading...")
+                    Text(isSearching ? "Searching..." : "Loading...")
                         .font(.body)
                         .foregroundColor(.secondary)
                 }
@@ -124,27 +126,36 @@ struct ContentView: View {
         }
     }
     
-    private func filterLines(with searchText: String) {
-        if searchText.isEmpty {
+    private func performAlgoliaSearch(query: String) {
+        if query.isEmpty {
             filteredLines = []
-        } else {
-            let lowercaseSearch = searchText.lowercased()
-            filteredLines = officeLines.filter { line in
-                line.lineText.lowercased().contains(lowercaseSearch) ||
-                line.speaker.lowercased().contains(lowercaseSearch)
+            isSearching = false
+            return
+        }
+        
+        isSearching = true
+        
+        algoliaManager.search(query: query) { result in
+            DispatchQueue.main.async {
+                self.isSearching = false
+                switch result {
+                case .success(let lines):
+                    self.filteredLines = lines
+                case .failure(let error):
+                    print("Algolia search error: \(error)")
+                    // Fallback to empty results on error
+                    self.filteredLines = []
+                }
             }
         }
     }
     
     private func loadOfficeLines() {
-        DispatchQueue.global(qos: .userInitiated).async {
-            let parsedLines = CSVParser.loadOfficeLinesFromBundle()
-            
-            DispatchQueue.main.async {
-                self.officeLines = parsedLines
-                self.isDataLoaded = !parsedLines.isEmpty
-                self.filterLines(with: self.searchText)
-            }
+        // With Algolia, we don't need to preload all data
+        // Just mark as loaded and ready for search
+        DispatchQueue.main.async {
+            self.isDataLoaded = true
+            self.performAlgoliaSearch(query: self.searchText)
         }
     }
     
