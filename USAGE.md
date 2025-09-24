@@ -7,21 +7,10 @@
 2. Make sure you have macOS 14.0+ and Xcode 15.0+
 3. Build and run the project (⌘+R)
 
-### Step 2: Load Your Data
-You have two options:
-
-#### Option A: Load Sample Data (Quick Start)
-- Click "Load Sample Data" button
-- This loads 30+ popular Office quotes for immediate testing
-
-#### Option B: Import CSV File
-- Click "Load CSV File" button
-- Select your CSV file containing Office lines
-- The file should follow this format:
-  ```csv
-  id,season,episode,scene,line_text,speaker
-  1,1,1,1,"That's what she said!","Michael Scott"
-  ```
+### Step 2: Start Searching
+- The app automatically loads all Office lines when it starts
+- You'll see a loading screen briefly while the database is loaded
+- Once loaded, you can immediately start searching
 
 ### Step 3: Search for Lines
 1. Type in the search box to find lines
@@ -43,38 +32,35 @@ You have two options:
 - **Case insensitive**: Search works regardless of capitalization
 - **Phrase search**: Find exact phrases or partial quotes
 
-### CSV Format Details
-Your CSV file must have these exact column headers:
-- `id`: Unique identifier (integer)
-- `season`: Season number (integer)
-- `episode`: Episode number (integer)  
-- `scene`: Scene number (integer)
-- `line_text`: The actual quote (text, can contain commas if quoted)
-- `speaker`: Character name (text)
+### Database Details
+The app includes a complete database of Office lines with:
+- `id`: Unique identifier for each line
+- `season`: Season number
+- `episode`: Episode number  
+- `scene`: Scene number
+- `line_text`: The actual quote
+- `speaker`: Character name
 
 ### Performance
-- App handles thousands of lines efficiently
+- App handles tens of thousands of lines efficiently
 - Search results appear instantly
 - First 50 results shown to maintain performance
 - All data loads into memory for fast searching
 
-## Sample Files Included
+## Complete Database Included
 
-### `sample_office_lines.csv`
-- Contains 15 popular Office quotes
-- Perfect for quick testing
-
-### `extended_office_lines.csv`
-- Contains 30+ quotes from various seasons
-- Demonstrates full app capabilities
-- Includes quotes from multiple characters
+The app comes with a complete database of Office lines built-in, containing:
+- Over 50,000 lines from all seasons
+- Complete character information
+- Season and episode details
+- All data is automatically loaded when you start the app
 
 ## Troubleshooting
 
-### CSV Won't Load
-- Check that your CSV has the exact column headers shown above
-- Ensure numeric columns (id, season, episode, scene) contain valid integers
-- Make sure text with commas is properly quoted
+### App Takes Time to Load
+- The app loads a large database of Office lines on startup
+- Wait for the loading screen to complete
+- This only happens once when the app starts
 
 ### Search Not Working
 - Verify data loaded successfully (check the "Total lines loaded" counter)
@@ -86,24 +72,9 @@ Your CSV file must have these exact column headers:
 - Check for the green "Copied to clipboard!" confirmation message
 - Try pasting with ⌘+V in another application
 
-## Examples
-
-### Good CSV Format ✅
-```csv
-id,season,episode,scene,line_text,speaker
-1,2,1,5,"That's a really, really good point.","Michael Scott"
-2,1,3,2,"Bears eat beets.","Dwight Schrute"
-```
-
-### Bad CSV Format ❌
-```csv
-ID,Season,Episode,Line,Person
-one,2,1,"That's a good point","Michael"
-```
-
 ## Privacy and Security
 
 - App is sandboxed for security
-- Only accesses files you explicitly select
+- No file access permissions required
 - No network access required
-- All data stays on your local machine
+- All data is included in the app bundle and stays on your local machine
