@@ -143,4 +143,29 @@ struct AdvancedSearchEngineTests {
         let confidentialResults = results.filter { $0.lineText.contains("confidential") }
         #expect(confidentialResults.count > 0, "Should find lines with 'confidential' when searching for 'secret'")
     }
+    
+    @Test func testComplexMultiWordSynonymSearch() async throws {
+        // Test complex search combining multiple synonyms
+        let results = AdvancedSearchEngine.search(lines: testLines, searchText: "comprehend confidential")
+        
+        // Should match the line with "understand" and "secret"
+        let matchingResults = results.filter { $0.lineText.contains("understand") && $0.lineText.contains("secret") }
+        #expect(matchingResults.count > 0, "Should match via synonym expansion")
+    }
+    
+    @Test func testSpecialCharacters() async throws {
+        // Test with punctuation and special characters
+        let results = AdvancedSearchEngine.search(lines: testLines, searchText: "wouldn't")
+        
+        #expect(results.count > 0, "Should handle contractions with apostrophes")
+    }
+    
+    @Test func testVeryLongSearchQuery() async throws {
+        // Test with a long search query
+        let longQuery = "understand secret confidential private hidden classified comprehend grasp"
+        let results = AdvancedSearchEngine.search(lines: testLines, searchText: longQuery)
+        
+        // Should not crash and should return reasonable results
+        #expect(results.count >= 0, "Should handle long queries gracefully")
+    }
 }

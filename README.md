@@ -5,7 +5,11 @@ A native macOS application for searching through every line from the TV show "Th
 ## Features
 
 - **Built-in Office Lines**: All Office lines are pre-loaded from the included database
-- **Wildcard Search**: Search through all lines with real-time filtering
+- **Advanced Search**: Intelligent search with synonyms, flexible word order, and wildcards
+  - Synonym matching: "understand" matches "get", "comprehend", "grasp"
+  - Flexible word order: "understand secret" and "secret understand" both work
+  - Wildcard support: Use `*` for partial matching
+  - Phrase search: Use quotes for exact matches
 - **Copy to Clipboard**: Click any result to copy the line text to your clipboard
 - **Responsive UI**: Native macOS interface with SwiftUI
 - **Complete Database**: Contains thousands of lines from all seasons of The Office
