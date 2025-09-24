@@ -28,5 +28,8 @@ struct OfficeLinesApp: App {
             ContentView()
         }
         .modelContainer(sharedModelContainer)
+        .windowStyle(.hiddenTitleBar)
+        .windowResizability(.contentSize)
+        .defaultSize(width: 680, height: 520)
     }
 }

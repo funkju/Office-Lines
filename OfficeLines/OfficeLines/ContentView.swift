@@ -8,6 +8,8 @@ struct ContentView: View {
     @State private var isDataLoaded = false
     @State private var selectedLine: OfficeLine?
     @State private var copyFeedback = ""
+    @State private var selectedIndex = 0
+    @FocusState private var isSearchFocused: Bool
     
     var body: some View {
         VStack(spacing: 0) {
@@ -22,9 +24,35 @@ struct ContentView: View {
                         .padding(.vertical, 12)
                         .background(Color(NSColor.controlBackgroundColor))
                         .cornerRadius(8)
-                        .shadow(color: .black.opacity(0.1), radius: 1, x: 0, y: 1)
+                        .shadow(color: .black.opacity(isSearchFocused ? 0.2 : 0.1), radius: isSearchFocused ? 2 : 1, x: 0, y: 1)
+                        .overlay(
+                            RoundedRectangle(cornerRadius: 8)
+                                .stroke(Color.accentColor.opacity(isSearchFocused ? 0.3 : 0), lineWidth: 1)
+                        )
+                        .focused($isSearchFocused)
+                        .onSubmit {
+                            if !filteredLines.isEmpty && selectedIndex < filteredLines.count {
+                                let line = filteredLines[selectedIndex]
+                                copyToClipboard(line.copyText)
+                                selectedLine = line
+                                showCopyFeedback(for: line)
+                            }
+                        }
                         .onChange(of: searchText) { _, newValue in
                             filterLines(with: newValue)
+                            selectedIndex = 0
+                        }
+                        .onKeyPress(.upArrow) {
+                            if selectedIndex > 0 {
+                                selectedIndex -= 1
+                            }
+                            return .handled
+                        }
+                        .onKeyPress(.downArrow) {
+                            if selectedIndex < filteredLines.count - 1 {
+                                selectedIndex += 1
+                            }
+                            return .handled
                         }
                     
                     // Copy feedback
@@ -43,13 +71,15 @@ struct ContentView: View {
                 if !filteredLines.isEmpty {
                     ScrollView {
                         LazyVStack(spacing: 2) {
-                            ForEach(filteredLines.prefix(50)) { line in
-                                SpotlightResultView(line: line) {
+                            ForEach(Array(filteredLines.prefix(50).enumerated()), id: \.element.id) { index, line in
+                                SpotlightResultView(line: line, isSelected: index == selectedIndex) {
                                     copyToClipboard(line.copyText)
                                     selectedLine = line
                                     showCopyFeedback(for: line)
+                                    selectedIndex = index
                                 }
-                                .background(selectedLine?.id == line.id ? Color.accentColor.opacity(0.1) : Color.clear)
+                                .background(selectedLine?.id == line.id ? Color.accentColor.opacity(0.1) : 
+                                           (index == selectedIndex ? Color.accentColor.opacity(0.05) : Color.clear))
                             }
                         }
                         .padding(.horizontal, 40)
@@ -90,6 +120,7 @@ struct ContentView: View {
         .background(Color(NSColor.windowBackgroundColor))
         .onAppear {
             loadOfficeLines()
+            isSearchFocused = true
         }
     }
     
@@ -135,6 +166,7 @@ struct ContentView: View {
 
 struct SpotlightResultView: View {
     let line: OfficeLine
+    let isSelected: Bool
     let onTap: () -> Void
     
     var body: some View {
